@@ -1,0 +1,29 @@
+﻿@model List<ECommerceProject.Entities.Concrete.Category>
+@using ECommerceProject.Entities.Concrete
+
+@{
+    // Tüm kategorileri ViewBag'den alıyoruz.
+    var allCategories = ViewBag.AllCategories as List<Category>;
+}
+
+@if (Model != null && Model.Any())
+{
+    <ul class="dropdown-menu">
+        @foreach (var category in Model)
+        {
+            var subCategories = allCategories.Where(c => c.ParentId == category.Id).ToList();
+
+            <li class="@(subCategories.Any() ? "dropdown-submenu" : "")">
+                <a class="dropdown-item @(subCategories.Any() ? "dropdown-toggle" : "")"
+                   href="@Url.Action("Index", "Home", new { categoryId = category.Id })">
+                    @category.Name
+                </a>
+                @if (subCategories.Any())
+                {
+                    // Rekursif çağrı: Kendini tekrar çağırıyor.
+                    @await Html.PartialAsync("_SubCategoryMenu", subCategories)
+                }
+            </li>
+        }
+    </ul>
+}

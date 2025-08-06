@@ -1,0 +1,12 @@
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ECommerceProject.Core\bin\Debug\net8.0\ECommerceProject.Core.deps.json
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ECommerceProject.Core\bin\Debug\net8.0\ECommerceProject.Core.dll
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ECommerceProject.Core\bin\Debug\net8.0\ECommerceProject.Core.pdb
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ECommerceProject.Core\obj\Debug\net8.0\ECommerceProject.Core.csproj.AssemblyReference.cache
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ECommerceProject.Core\obj\Debug\net8.0\ECommerceProject.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ECommerceProject.Core\obj\Debug\net8.0\ECommerceProject.Core.AssemblyInfoInputs.cache
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ECommerceProject.Core\obj\Debug\net8.0\ECommerceProject.Core.AssemblyInfo.cs
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ECommerceProject.Core\obj\Debug\net8.0\ECommerceProject.Core.csproj.CoreCompileInputs.cache
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ECommerceProject.Core\obj\Debug\net8.0\ECommerceProject.Core.dll
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ECommerceProject.Core\obj\Debug\net8.0\refint\ECommerceProject.Core.dll
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ECommerceProject.Core\obj\Debug\net8.0\ECommerceProject.Core.pdb
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ECommerceProject.Core\obj\Debug\net8.0\ref\ECommerceProject.Core.dll

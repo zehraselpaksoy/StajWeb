@@ -1,0 +1,86 @@
+﻿@model ECommerceWeb1.Web.Models.ProductsViewModel
+@using System.Globalization
+@using ECommerceWeb1.Web.Models
+@using ECommerceProject.Entities.Concrete
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Ürün Listesi";
+}
+
+<h2 class="mb-4 text-center">Ürünler</h2>
+
+@if (Model.Products != null && Model.Products.Any())
+{
+    <div class="row">
+        @foreach (var item in Model.Products)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 border-0 shadow-sm overflow-hidden">
+                    <div style="height: 100%; position: relative;">
+                        <img src="@(string.IsNullOrEmpty(item.ImageUrl) ? "https://placehold.co/400x400?text=Urun+Resmi" : Url.Content(item.ImageUrl))"
+                             alt="@item.Name"
+                             class="w-100 h-100"
+                             style="object-fit: cover;"
+                             onerror="this.onerror=null;this.src='https://placehold.co/400x400?text=Resim+Yok';" />
+
+                        <div class="p-2 bg-white position-absolute bottom-0 w-100" style="opacity: 0.95;">
+                            <h6 class="mb-1 text-truncate">@item.Name</h6>
+                            <p class="mb-1 text-muted small text-truncate">
+                                @(item.Description?.Length > 50 ? item.Description.Substring(0, 50) + "..." : item.Description)
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-success fw-bold">
+                                    @item.Price.ToString("C", new CultureInfo("tr-TR"))
+                                </span>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="@Url.Action("AddToCart", "Home", new { id = item.Id })"
+                                       class="btn btn-outline-primary" title="Sepete Ekle">🛒</a>
+
+                                    @if (Model.FavoriteProductIds != null && Model.FavoriteProductIds.Contains(item.Id))
+                                    {
+                                        <a href="@Url.Action("RemoveFromFavorites", "Home", new { productId = item.Id })"
+                                           class="btn btn-outline-danger" title="Favoriden Çıkar">🗑️</a>
+                                    }
+                                    else
+                                    {
+                                        <a href="@Url.Action("AddToFavorites", "Home", new { productId = item.Id })"
+                                           class="btn btn-outline-danger" title="Favorilere Ekle">❤️</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        }
+    </div>
+}
+else
+{
+    <div class="alert alert-warning text-center">
+        Bu kategoriye ait ürün bulunamadı.
+    </div>
+}
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(function () {
+            $(".add-to-cart-btn").click(function (e) {
+                e.preventDefault();
+
+                var url = $(this).attr("href");
+
+                $.get(url)
+                    .done(function (data) {
+                        $("#cart-container").html(data);
+                    })
+                    .fail(function () {
+                        alert("Sepete eklenirken hata oluştu.");
+                    });
+            });
+        });
+    </script>
+}

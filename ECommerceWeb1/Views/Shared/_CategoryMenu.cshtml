@@ -1,0 +1,25 @@
+﻿@model List<ECommerceProject.Entities.Concrete.Category>
+@using ECommerceProject.Entities.Concrete
+
+<ul class="navbar-nav">
+    @foreach (var topCat in Model) // Model artık sadece en üst seviye kategorileri içeriyor.
+    {
+        var allCategories = ViewBag.AllCategories as List<Category>;
+        var subCats = allCategories.Where(c => c.ParentId == topCat.Id).ToList();
+
+        <li class="nav-item @(subCats.Any() ? "dropdown" : "")">
+            <a class="nav-link @(subCats.Any() ? "dropdown-toggle" : "")"
+               href="@Url.Action("Index", "Home", new { categoryId = topCat.Id })"
+               id="dropdown_@topCat.Id"
+               role="button"
+               data-bs-toggle="@(subCats.Any() ? "dropdown" : "")">
+                @topCat.Name
+            </a>
+            @if (subCats.Any())
+            {
+                // Alt menü için rekurisif partial view'i çağır
+                @await Html.PartialAsync("_SubCategoryMenu", subCats)
+            }
+        </li>
+    }
+</ul>

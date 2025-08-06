@@ -1,0 +1,5 @@
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ClassLibrary1\obj\Debug\net8.0\ECommerceWeb1.Business.csproj.AssemblyReference.cache
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ClassLibrary1\obj\Debug\net8.0\ECommerceWeb1.Business.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ClassLibrary1\obj\Debug\net8.0\ECommerceWeb1.Business.AssemblyInfoInputs.cache
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ClassLibrary1\obj\Debug\net8.0\ECommerceWeb1.Business.AssemblyInfo.cs
+C:\Users\ZEHRA ASEL\source\repos\ECommerceWeb1\ClassLibrary1\obj\Debug\net8.0\ECommerceWeb1.Business.csproj.CoreCompileInputs.cache

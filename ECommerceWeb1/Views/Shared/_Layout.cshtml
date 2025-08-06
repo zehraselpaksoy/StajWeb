@@ -1,0 +1,306 @@
+﻿@using Microsoft.AspNetCore.Mvc
+@using Microsoft.AspNetCore.Mvc.ViewComponents
+@using ECommerceProject.Entities.Concrete
+@using ECommerceProject.Core.Helpers
+@inject IHttpContextAccessor HttpContextAccessor
+@inject ECommerceProject.Business.Abstract.ICartService CartService
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.Title - ZAP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/Content/CSS/styles.css" />
+    @* Font Awesome ikonları için CDN (kullanıcı ve sipariş ikonu için) *@
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" xintegrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0V4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        .dropdown-submenu {
+            position: relative;
+        }
+
+            .dropdown-submenu > .dropdown-menu {
+                top: 0;
+                left: 100%;
+                margin-left: 0.1rem;
+                display: none;
+                position: absolute;
+                z-index: 1050;
+            }
+
+            .dropdown-submenu:hover > .dropdown-menu {
+                display: block;
+            }
+
+            .dropdown-submenu > a::after {
+                content: "▶";
+                float: right;
+                margin-top: 5px;
+                font-size: 0.8em;
+            }
+
+        /* Sepet dropdown menüsü için özel stil */
+        #cartDropdownMenu {
+            min-width: 320px; /* Sepet içeriğinin genişliği */
+            max-height: 400px; /* Sepet içeriğinin maksimum yüksekliği */
+            overflow-y: auto; /* İçerik taşarsa kaydırma çubuğu */
+            right: 0; /* Sağ hizalı */
+            left: auto; /* Sol hizalamayı iptal et */
+            padding: 10px; /* İç boşluk */
+            border-radius: 8px; /* Köşe yuvarlama */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Hafif gölge */
+        }
+
+        /* Kullanıcı dropdown menüsü için stil */
+        #userDropdownMenu {
+            min-width: 200px; /* Kullanıcı menüsünün genişliği */
+            right: 0; /* Sağ hizalı */
+            left: auto; /* Sol hizalamayı iptal et */
+            padding: 10px; /* İç boşluk */
+            border-radius: 8px; /* Köşe yuvarlama */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Hafif gölge */
+        }
+
+        /* Kullanıcı ikonu boyutu */
+        .user-icon {
+            font-size: 1.25rem; /* İkon boyutu */
+            color: #fff; /* İkon rengi */
+        }
+    </style>
+
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="@Url.Action("Index", "Home")">ZAP</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                @await Component.InvokeAsync("CategoryMenu")
+            </div>
+
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item me-2">
+                    <a class="btn btn-outline-warning" href="@Url.Action("MyFavorites", "Home")">❤️ Favorilerim</a>
+                </li>
+
+                @{
+                    var user = HttpContextAccessor.HttpContext.Session.GetObjectFromJson<User>("CurrentUser");
+                }
+
+                @if (user != null)
+                {
+                    <!-- Kullanıcı Dropdown Menüsü (Siparişlerim burada birleştirildi) -->
+                    <li class="nav-item dropdown me-2">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarUserDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle user-icon me-1"></i> @* Kullanıcı ikonu *@
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserDropdown" id="userDropdownMenu">
+                            <li><h6 class="dropdown-header">Hoş geldin, @user.FullName</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">E-posta: @user.Email</a></li>
+                            <li><a class="dropdown-item" href="@Url.Action("MyOrders", "Home")"><i class="fas fa-box-open me-2"></i>Siparişlerim</a></li> @* Siparişlerim linki buraya eklendi *@
+                            @* İsterseniz buraya başka profil linkleri veya bilgiler ekleyebilirsiniz *@
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="@Url.Action("Logout", "Account")">Çıkış Yap</a></li>
+                        </ul>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item me-2">
+                        <a class="btn btn-outline-success" href="@Url.Action("Login", "Account")">Giriş Yap</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-outline-primary" href="@Url.Action("Register", "Account")">Kayıt Ol</a>
+                    </li>
+                }
+
+                <!-- Sepet Dropdown Menüsü -->
+                <li class="nav-item dropdown" id="cartDropdownContainer">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarCartDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        🛒 Sepetim (<span id="cart-item-count">0</span>)
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarCartDropdown" id="cartDropdownMenu">
+                        <li>
+                            @* Sepet içeriği buraya AJAX ile yüklenecek *@
+                            @await Html.PartialAsync("_CartPartial", CartService.GetCartFromSession(HttpContextAccessor.HttpContext.Session))
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        @RenderBody()
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            // Alt menülerin hover ile açılması
+            $('.navbar-nav > li.dropdown').on('hidden.bs.dropdown', function () {
+                $('.dropdown-submenu .dropdown-menu.show').removeClass('show');
+            });
+
+            $('.dropdown-submenu').on('mouseenter', function () {
+                $(this).children('.dropdown-menu').addClass('show');
+            }).on('mouseleave', function () {
+                $(this).children('.dropdown-menu').removeClass('show');
+            });
+
+            // Sepet öğesi sayısını güncelleyen fonksiyon
+            function updateCartItemCount() {
+                var itemCount = $("#cartDropdownMenu table tbody tr").length;
+                $("#cart-item-count").text(itemCount);
+            }
+
+            // Sayfa yüklendiğinde sepet sayısını güncelle
+            updateCartItemCount();
+
+            // AJAX ile sepete ürün ekleme (ürün kartlarındaki butonlar için)
+            $(document).on("click", ".add-to-cart-btn", function (e) {
+                e.preventDefault();
+
+                var url = $(this).attr("href");
+
+                $.get(url)
+                    .done(function (data) {
+                        $("#cartDropdownMenu").html('<li>' + data + '</li>');
+                        updateCartItemCount();
+
+                        var cartDropdown = new bootstrap.Dropdown(document.getElementById('navbarCartDropdown'));
+                        cartDropdown.show();
+
+                        setTimeout(function () {
+                            cartDropdown.hide();
+                        }, 3000);
+                    })
+                    .fail(function () {
+                        showCustomAlert("Sepete eklenirken hata oluştu.");
+                    });
+            });
+
+            // Sepet içindeki miktar artırma/azaltma ve sepeti temizleme butonları için AJAX
+            $(document).on("click", ".btn-quantity-change, .btn-clear-cart", function (e) {
+                e.preventDefault();
+                var url = $(this).attr("href");
+
+                if ($(this).hasClass('btn-clear-cart')) {
+                    showCustomConfirm("Sepeti temizlemek istediğinize emin misiniz?", function(confirmed) {
+                        if (confirmed) {
+                            $.get(url)
+                                .done(function (data) {
+                                    $("#cartDropdownMenu").html('<li>' + data + '</li>');
+                                    updateCartItemCount();
+                                })
+                                .fail(function () {
+                                    showCustomAlert("Sepet güncellenirken hata oluştu.");
+                                });
+                        }
+                    });
+                } else {
+                    $.get(url)
+                        .done(function (data) {
+                            $("#cartDropdownMenu").html('<li>' + data + '</li>');
+                            updateCartItemCount();
+                        })
+                        .fail(function () {
+                            showCustomAlert("Sepet güncellenirken hata oluştu.");
+                        });
+                }
+            });
+
+            // Sepet dropdown'ının üzerine gelindiğinde açılması, ayrıldığında kapanması
+            $('#cartDropdownContainer').on('mouseenter', function () {
+                var cartDropdown = new bootstrap.Dropdown(document.getElementById('navbarCartDropdown'));
+                cartDropdown.show();
+            }).on('mouseleave', function () {
+                var cartDropdown = new bootstrap.Dropdown(document.getElementById('navbarCartDropdown'));
+                cartDropdown.hide();
+            });
+
+            // Kullanıcı dropdown'ının üzerine gelindiğinde açılması, ayrıldığında kapanması
+            $('#navbarUserDropdown').parent().on('mouseenter', function () {
+                var userDropdown = new bootstrap.Dropdown(document.getElementById('navbarUserDropdown'));
+                userDropdown.show();
+            }).on('mouseleave', function () {
+                var userDropdown = new bootstrap.Dropdown(document.getElementById('navbarUserDropdown'));
+                userDropdown.hide();
+            });
+
+
+            // Özel uyarı mesajı gösterme fonksiyonu (alert/confirm yerine)
+            function showCustomAlert(message) {
+                var alertHtml = '<div class="alert alert-danger alert-dismissible fade show fixed-top text-center" role="alert" style="z-index:11000; margin-top: 56px;">' +
+                                message +
+                                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                                '</div>';
+                var alertDiv = $(alertHtml);
+                $('body').append(alertDiv);
+
+                setTimeout(function() {
+                    alertDiv.alert('close');
+                }, 5000);
+            }
+
+            // Özel onay mesajı gösterme fonksiyonu (confirm yerine)
+            function showCustomConfirm(message, callback) {
+                var confirmModalHtml = `
+                    <div class="modal fade" id="customConfirmModal" tabindex="-1" aria-labelledby="customConfirmModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="customConfirmModalLabel">Onay Gerekli</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    ${message}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="confirmNo">Hayır</button>
+                                    <button type="button" class="btn btn-primary" id="confirmYes">Evet</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $('body').append(confirmModalHtml);
+                var confirmModal = new bootstrap.Modal(document.getElementById('customConfirmModal'));
+                confirmModal.show();
+
+                $('#confirmYes').off('click').on('click', function() {
+                    confirmModal.hide();
+                    $('#customConfirmModal').remove();
+                    callback(true);
+                });
+
+                $('#confirmNo').off('click').on('click', function() {
+                    confirmModal.hide();
+                    $('#customConfirmModal').remove();
+                    callback(false);
+                });
+
+                $('#customConfirmModal').on('hidden.bs.modal', function () {
+                    $(this).remove();
+                });
+            }
+        });
+    </script>
+
+    <script src="~/Scripts/js/scripts.js"></script>
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
